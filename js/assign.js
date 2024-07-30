@@ -87,13 +87,14 @@ taskname.addEventListener("keypress",function(e){
     if(e.key=="Enter")
     {
        // tasks.push(taskname.value);
-       let obj={};
-       obj.title=taskname.value;
-       obj.status='Pending';
-       obj.id=id;
+        let obj={};
+        obj.title=taskname.value;
+        obj.status='Pending';
+        obj.id=id;
         id++;
         tasks.push(obj);
-        addDom();
+        addDom(obj);
+        setLocalStorage();
         taskname.value='';
         console.log(tasks);
 
@@ -104,12 +105,108 @@ taskname.addEventListener("keypress",function(e){
     //console.log(e);
 
 })
-function addDom()
+function addDom(task)
 {
-    let li=document.createElement("li");
-    li.innerText=taskname.value;
+    // let li=document.createElement("li");
+    // li.innerText=taskname.value;
+    // taskList.append(li);
+    let taskdiv =document.createElement("div");
 
-    taskList.append(li);
+    let span=document.createElement("span");
+    span.innerText=task.title;//taskname.value;
+
+    let chk=document.createElement("input");
+    chk.setAttribute("type","checkbox");
+    chk.addEventListener("click",function(){
+        //console.log(chk.checked);
+        let newstatus="";
+        if(chk.checked)
+        {
+            newstatus="Completed";
+            span.style.textDecoration="line-through";
+        }
+        else
+        {
+            newstatus="Pending";
+            span.style.textDecoration="none";
+
+        }
+
+
+        tasks=tasks.map(function(item){
+
+            if(item.id==task.id)
+                item.status=newstatus;
+            return item;
+        })
+        setLocalStorage();
+        console.log(tasks);
+
+    })
+
+    let delbtn=document.createElement("button");
+    delbtn.innerText="Del";
+    delbtn.addEventListener("click",function(){
+        taskdiv.remove();
+        tasks=tasks.filter(function(item){
+            if(item.id!=task.id)
+                return true;
+        })
+        console.log(tasks);
+        setLocalStorage();
+
+
+    })
+   // delbtn.addEventListener("click",clickHandler);
+
+
+    taskdiv.append(span);
+    taskdiv.append(chk);
+    taskdiv.append(delbtn);
+
+    
+    taskList.append(taskdiv);
+
+
+
+
 
 }
+function clickHandler(e)
+{
+    e.target.parentNode.remove();
 
+
+}
+function setLocalStorage()
+{
+    localStorage.setItem("tasks",JSON.stringify(tasks));
+
+    /*
+    //let sample=["one","two"];
+let sample=[{'name':'test'}]
+    //localStorage.setItem("Name","Code");
+    localStorage.setItem("items",JSON.stringify( sample));
+    //document.write(sample);
+    let data=localStorage.getItem("items");
+    let items=JSON.parse(data);
+
+    console.log(items[0]);
+    */
+
+}
+//setLocalStorage();
+function getLocalStorage()
+{
+
+   // tasks=JSON.parse(localStorage.getItem("tasks"));
+
+    tasks=(localStorage.getItem("tasks")?JSON.parse(localStorage.getItem("tasks")):[]);
+    console.log(tasks);
+   tasks.forEach(element => {
+    addDom(element);
+
+   });
+
+}
+getLocalStorage();
